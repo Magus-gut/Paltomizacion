@@ -72,6 +72,7 @@ time = m.addVars(A, H, vtype=GRB.CONTINUOUS, lb=0., ub=1, name = "time_hr")
 m.update()
 
 # RESTRICTIONS
+#agregar distintos tipos de palto y suelo. Los tipos de palto tienen distintos consumos de agua y los tipos de suelo tienen distintos umbrales de consumo de agua
 
 # El palto debe consumir w litros, al menos, 3 veces al dia #checked
 m.addConstrs((3 <= quicksum(aq0[hr] for hr in range(24*(d-1) + 1, 24*d)) for d in D), name = "R1")
