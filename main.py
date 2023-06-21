@@ -82,7 +82,7 @@ m.addConstrs((w <= ca[hr] + M2*(1-req[hr]) for hr in H), name="R2")
 m.addConstrs((3 <= quicksum(req[hr] for hr in range(24*(d-1) + 1, 24*d)) for d in D), name = "R3")
 
 # El consumo de agua de un palto tipo p, en un dia, no puede superar un umbral u_p. #checked
-m.addConstrs((quicksum(quicksum(ca[hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= u * 24 for d in D), name="R4")
+# m.addConstrs((quicksum(quicksum(ca[hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= u * 24 for d in D), name="R4")
 
 #No se pueden usar 2 sistemas de regadío simultáneamente #checked
 m.addConstrs((quicksum(time[a,hr] for a in A) <= 1 for hr in H), name="R5")
@@ -113,7 +113,7 @@ m.addConstrs((ca[hr] >= 0 for hr in H), name = "R10")
 # m.addConstrs((quicksum(quicksum(r[a] * time[a, hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= maxEstanque for d in D ), name="R13")
 
 # Un palto no consume mas de 1.375 L por hora
-# m.addConstrs((ca[hr] <= w for hr in H), name = "R14")
+m.addConstrs((ca[hr] <= w for hr in H), name = "R14")
 
 
 
