@@ -65,7 +65,7 @@ M2 = M1
 
 # VARIABLES
 aq = m.addVars(H, vtype=GRB.CONTINUOUS, lb=0., ub=1000, name = "aq_hr")
-aq0 = m.addVars(H, vtype=GRB.BINARY, name = "aq_0")
+req = m.addVars(H, vtype=GRB.BINARY, name = "req")
 ca = m.addVars(H, vtype=GRB.CONTINUOUS, lb=0., ub=1000, name = "ca_hr")
 time = m.addVars(A, H, vtype=GRB.CONTINUOUS, lb=0., ub=1, name = "time_hr")
 
@@ -74,15 +74,15 @@ m.update()
 # RESTRICTIONS
 #agregar distintos tipos de palto y suelo. Los tipos de palto tienen distintos consumos de agua y los tipos de suelo tienen distintos umbrales de consumo de agua
 
-# El palto debe consumir w litros, al menos, 3 veces al dia #checked
-m.addConstrs((3 <= quicksum(aq0[hr] for hr in range(24*(d-1) + 1, 24*d)) for d in D), name = "R1")
+#Si el consumo de agua en una hora dado por ca_hr es mayor a w, entonces req_hr se activa #checked
+m.addConstrs(( w >= ca[hr] - M1*(req[hr]) for hr in H), name = "R1")
+m.addConstrs((w <= ca[hr] + M2*(1-req[hr]) for hr in H), name="R2")
 
-#Si el consumo de agua en una hora dado por ca_hr es mayor a w, entonces aq0_hr se activa #checked
-m.addConstrs(( w >= ca[hr] - M1*(aq0[hr]) for hr in H), name = "R2")
-m.addConstrs((w <= ca[hr] + M2*(1-aq0[hr]) for hr in H), name="R3")
+# El palto debe consumir w litros, al menos, 3 veces al dia #checked
+m.addConstrs((3 <= quicksum(req[hr] for hr in range(24*(d-1) + 1, 24*d)) for d in D), name = "R3")
 
 # El consumo de agua de un palto tipo p, en un dia, no puede superar un umbral u_p. #checked
-m.addConstrs((quicksum(quicksum(r[a]*time[a,hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= u * 24 for d in D), name="R4")
+m.addConstrs((quicksum(quicksum(ca[hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= u * 24 for d in D), name="R4")
 
 #No se pueden usar 2 sistemas de regadío simultáneamente #checked
 m.addConstrs((quicksum(time[a,hr] for a in A) <= 1 for hr in H), name="R5")
@@ -97,7 +97,7 @@ m.addConstrs((quicksum(quicksum(r[a] * time[a, hr] for hr in range(24*(d-1) + 1,
 m.addConstr((quicksum(quicksum(r[a] * time[a, hr] for hr in H) for a in A) * wc <= wb), name="R8")
 
 # Conservación de masa de agua en la tierra
-m.addConstrs((r[a] * time[a,hr-1] + pp[hr-1]*s + aq[hr-1] - aq[hr] - ca[hr] - (T[hr-1]/maxT)*aq[hr-1] == 0 for hr in H for a in A if hr != 1), name = "R7")
+# m.addConstrs((r[a] * time[a,hr-1] + pp[hr-1]*s + aq[hr-1] - aq[hr] - ca[hr] - (T[hr-1]/maxT)*aq[hr-1] == 0 for hr in H for a in A if hr != 1), name = "R7")
             
 
 # La cantidad de agua presente en la tierra debe ser mayor o igual a 0
@@ -119,25 +119,35 @@ m.addConstrs((ca[hr] >= 0 for hr in H), name = "R10")
 
 m.update()
 
-funcion_objetivo = wb - (quicksum(quicksum(time[a, hr] * r[a] for hr in H)for a in A) * wc)
-m.setObjective(funcion_objetivo, GRB.MAXIMIZE)
+funcion_objetivo = (quicksum(quicksum(time[a, hr] * r[a] for hr in H)for a in A) * wc)
+m.setObjective(funcion_objetivo, GRB.MINIMIZE)
+# m.Params.timeLimit = 50.0
+m.Params.MIPGapAbs = 1e-2
 m.optimize()
 m.printStats()
 m.printAttr('X')
 print(f"El valor objetivo es de: {m.ObjVal}[CLP]")
 print(f"Se rego un total de {quicksum(time[1, hr] for hr in H).getValue()} horas ({quicksum(r[1] * time[1, hr] for hr in H).getValue()} [L]) con el sistema 1 y un total de {quicksum(time[2, hr] for hr in H).getValue()} horas ({quicksum(r[2] * time[2, hr] for hr in H).getValue()} [L]) con el sistema 2")
 print(
-    f"Cada palto consumio {quicksum(ca[hr] for hr in H).getValue() } Litros de agua, esto es {(quicksum(ca[hr] for hr in H).getValue() ) / 365} por dia")
+    f"Cada palto consumio {quicksum(ca[hr] for hr in H).getValue() } Litros de agua, esto es {(quicksum(ca[hr] for hr in H).getValue() ) / (52*7)} por dia")
 print(
     f"El gasto es de {(quicksum(quicksum(time[a, hr] * r[a] for hr in H)for a in A) * wc).getValue() }[CLP]")
-if m.status == GRB.OPTIMAL:
+# if m.status == GRB.OPTIMAL:
     # Open a CSV file for writing
-    with open('result_variables.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
+with open('result_variables.csv', mode='w', newline='') as file:
+    writer = csv.writer(file)
 
-        # Write the header row
-        writer.writerow(['Variable', 'Value'])
+    # Write the header row
+    header = []
+    writer.writerow(['Variable', 'Value'])
 
-        # Iterate over the variables in the model and print their values
-        for var in m.getVars():
-            writer.writerow([var.varName, var.x])
+    # Iterate over the variables in the model and print their values
+    for var in m.getVars():
+        writer.writerow([var.varName, var.x])
+        # header.append(var.varName)
+    # writer.writerow(header)
+    # for hr in H:
+    #     row = []
+    #     for var in m.getVars():
+    #         row.append(var.x)
+    #     writer.writerow(row)
