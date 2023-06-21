@@ -88,7 +88,7 @@ m.addConstrs((3 <= quicksum(req[hr] for hr in range(24*(d-1) + 1, 24*d)) for d i
 m.addConstrs((quicksum(time[a,hr] for a in A) <= 1 for hr in H), name="R5")
 
 #El agua solo puede provenir del sistema de riego y precipitaciones, y solo puede se puede reducir por evaporacion o por el consumo del palto #unfeasible
-m.addConstrs((aq[hr] == r[a] * time[a, hr] + pp[hr-1] * s + aq[hr-1] - ca[hr] - (T[hr-1]/maxT)*aq[hr-1] for a in A for hr in H if hr != 1), name="R6")
+m.addConstrs((aq[hr] == r[a] * time[a, hr] + pp[hr-1] * s + aq[hr-1] - ca[hr] - 0.5*(T[hr-1]/maxT)*aq[hr-1] for a in A for hr in H if hr != 1), name="R6")
 
 #No se puede superar la capacidad maxima del estanque en el regadío de un día 
 m.addConstrs((quicksum(quicksum(r[a] * time[a, hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= maxEstanque for d in D ), name="R7")
@@ -121,8 +121,8 @@ m.update()
 
 funcion_objetivo = (quicksum(quicksum(time[a, hr] * r[a] for hr in H)for a in A) * wc)
 m.setObjective(funcion_objetivo, GRB.MINIMIZE)
-# m.Params.timeLimit = 50.0
-m.Params.MIPGapAbs = 1e-2
+m.Params.timeLimit = 50.0
+# m.Params.MIPGapAbs = 1e-2
 m.optimize()
 m.printStats()
 m.printAttr('X')

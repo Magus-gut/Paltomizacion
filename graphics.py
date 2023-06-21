@@ -32,7 +32,7 @@ plt.figure(figsize=(10, 5))
 # plt.plot(hr, aq, label='Agua en la tierra')
 # plt.plot(hr, req, label='Requerimiento de agua')
 # plt.plot(hr, ca, label='Consumo de agua')
-# plt.plot(hr, time_a1, label='Tiempo de riego sistema 1')
+plt.plot(hr, time_a1, label='Tiempo de riego sistema 1')
 # plt.plot(hr, time_a2, label='Tiempo de riego sistema 2')
 plt.show()
 # Show dataframe
