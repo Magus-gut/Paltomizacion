@@ -1,6 +1,6 @@
 from gurobipy import GRB, Model, quicksum
 from random import randint, seed, uniform, random
-from datos import T, pp, evap
+from datos import T, pp, evap, pp_inunda, pp_sequia
 import numpy as np
 from math import ceil
 import csv
@@ -53,7 +53,8 @@ wb = 40000
 
 # Cost of water per liter
 wc = 1.89
-
+wc_caro = 20
+wc_gratis = 0
 
 # Number of trees 
 na = 150

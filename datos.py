@@ -40,11 +40,30 @@ print(f"max evap: {max(evap.values())}")
 print(f"max T: {max(T.values())}")
 
 
-data_inundacion = {'Value': [35] * 364}  # Creates a list of 364 35's
+data_inundacion = {'Value': [2.5] * 365}  # Creates a list of 364 35's
 df_inunda = pd.DataFrame(data_inundacion)
 
-data_sequía = {'Value': [0] * 364}  # Creates a list of 364 0's
+p_repetido_inunda = []
+for i in range(len(df_inunda)):
+    for j in range(24):
+        p_repetido_inunda.append(df_inunda.iloc[i])
+
+pp_inunda = {}
+for i, value in enumerate(p_repetido_inunda):
+    pp_inunda[i+1] = value
+
+data_sequía = {'Value': [0] * 365}  # Creates a list of 364 0's
+
+
 df_sequia = pd.DataFrame(data_sequía)
+p_repetido_sequia = []
+for i in range(len(df_sequia)):
+    for j in range(24):
+        p_repetido_sequia.append(df_sequia.iloc[i])
+pp_sequia = {}
+for i, value in enumerate(p_repetido_sequia):
+    pp_sequia[i+1] = value
+
 
 
 # print(df_inunda)
