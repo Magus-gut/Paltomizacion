@@ -121,7 +121,7 @@ m.update()
 
 funcion_objetivo = (quicksum(quicksum(time[a, hr] * r[a] for hr in H)for a in A) * wc)
 m.setObjective(funcion_objetivo, GRB.MINIMIZE)
-m.Params.timeLimit = 50.0
+# m.Params.timeLimit = 50.0
 # m.Params.MIPGapAbs = 1e-2
 m.optimize()
 m.printStats()
