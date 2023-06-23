@@ -1,2 +1,8 @@
 __pycache__
 result_variables.csv
+__pycache__/datos.cpython-310.pyc
+aricaresults.csv
+masdosgrados.csv
+menosdosgrados.csv
+.gitignore
+__pycache__/datos.cpython-310.pyc
