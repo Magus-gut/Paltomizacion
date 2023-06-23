@@ -24,7 +24,12 @@ dfTplus = dfTplus['Valor medicion']
 change_every_value_by(PLUS_VALUE, dfTplus)
 Tplus = dfTplus.to_dict()
 
+dfTarica = pd.read_csv("TPromedioDiariaArica.csv", sep=";")
+dfTarica = dfTarica['Valor medicion']
+Tarica = dfTarica.to_dict()
 
-
+dfpmontt = pd.read_csv("dfPmontt.csv", sep=";")
+dfpmontt = dfpmontt['Valor medicion']
+Tpmontt = dfpmontt.to_dict()
 
 

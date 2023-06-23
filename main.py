@@ -1,7 +1,7 @@
 from gurobipy import GRB, Model, quicksum
 from random import randint, seed, uniform, random
 from datos import T, pp, evap
-from tempchanger import Tminus, Tplus
+from tempchanger import Tminus, Tplus, Tarica, Tpmontt
 import numpy as np
 from math import ceil
 import csv
@@ -28,7 +28,7 @@ H = [i for i in range(1, hours+1)] # 8736 Horas del año
 # PARAMS
 
 #Choose which temperature table to use
-tempTables = {"normal": T, "minus": Tminus, "plus": Tplus}
+tempTables = {"normal": T, "minus": Tminus, "plus": Tplus, "arica": Tarica, "puertoRock": Tpmontt}
 T = tempTables["normal"]
 
 # Max values for temperature and evaporation
