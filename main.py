@@ -1,6 +1,7 @@
 from gurobipy import GRB, Model, quicksum
 from random import randint, seed, uniform, random
-from datos import T, pp, evap, pp_inunda, pp_sequia
+from datos import T, pp, evap
+from tempchanger import Tminus, Tplus, Tarica, Tpmontt
 import numpy as np
 from math import ceil
 import csv
@@ -25,6 +26,10 @@ H = [i for i in range(1, hours+1)] # 8736 Horas del año
 
 
 # PARAMS
+
+#Choose which temperature table to use
+tempTables = {"normal": T, "minus": Tminus, "plus": Tplus, "arica": Tarica, "puertoRock": Tpmontt}
+T = tempTables["normal"]
 
 # Max values for temperature and evaporation
 maxT = max(T.values()) 
@@ -83,13 +88,13 @@ m.addConstrs((w <= ca[hr] + M2*(1-req[hr]) for hr in H), name="R2")
 m.addConstrs((3 <= quicksum(req[hr] for hr in range(24*(d-1) + 1, 24*d)) for d in D), name = "R3")
 
 # El consumo de agua de un palto tipo p, en un dia, no puede superar un umbral u_p. #checked
-m.addConstrs((quicksum(quicksum(ca[hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= u * 24 for d in D), name="R4")
+# m.addConstrs((quicksum(quicksum(ca[hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= u * 24 for d in D), name="R4")
 
 #No se pueden usar 2 sistemas de regadío simultáneamente #checked
 m.addConstrs((quicksum(time[a,hr] for a in A) <= 1 for hr in H), name="R5")
 
 #El agua solo puede provenir del sistema de riego y precipitaciones, y solo puede se puede reducir por evaporacion o por el consumo del palto #unfeasible
-m.addConstrs((aq[hr] == r[a] * time[a, hr] + pp[hr-1] * s + aq[hr-1] - ca[hr] - (T[hr-1]/maxT)*aq[hr-1] for a in A for hr in H if hr != 1), name="R6")
+m.addConstrs((aq[hr] == r[a] * time[a, hr] + pp[hr-1] * s + aq[hr-1] - ca[hr] - 0.5*(T[hr-1]/maxT)*aq[hr-1] for a in A for hr in H if hr != 1), name="R6")
 
 #No se puede superar la capacidad maxima del estanque en el regadío de un día 
 m.addConstrs((quicksum(quicksum(r[a] * time[a, hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= maxEstanque for d in D ), name="R7")
@@ -114,7 +119,7 @@ m.addConstrs((ca[hr] >= 0 for hr in H), name = "R10")
 # m.addConstrs((quicksum(quicksum(r[a] * time[a, hr] for hr in range(24*(d-1) + 1, 24*d)) for a in A) <= maxEstanque for d in D ), name="R13")
 
 # Un palto no consume mas de 1.375 L por hora
-# m.addConstrs((ca[hr] <= w for hr in H), name = "R14")
+m.addConstrs((ca[hr] <= w for hr in H), name = "R14")
 
 
 
