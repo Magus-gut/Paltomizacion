@@ -24,7 +24,7 @@ dfTplus = dfTplus['Valor medicion']
 change_every_value_by(PLUS_VALUE, dfTplus)
 Tplus = dfTplus.to_dict()
 
-print(Tminus[0])
+
 
 
 
