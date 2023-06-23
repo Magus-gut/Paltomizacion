@@ -39,8 +39,8 @@ print(f"max pp: {max(pp.values())}")
 print(f"max evap: {max(evap.values())}")
 print(f"max T: {max(T.values())}")
 
-
-data_inundacion = {'Value': [2.5] * 365}  # Creates a list of 364 35's
+data_cruda = [0.1] * 121 + [2.5] * 152 + [0.01] * (365 - 121 - 152)
+data_inundacion = pd.DataFrame({'Value': data_cruda})  # Creates a list of 364 35's
 df_inunda = pd.DataFrame(data_inundacion)
 
 p_repetido_inunda = []
