@@ -58,7 +58,8 @@ wb = 40000
 
 # Cost of water per liter
 wc = 1.89
-
+wc_caro = 20
+wc_gratis = 0
 
 # Number of trees 
 na = 150
@@ -126,7 +127,7 @@ m.update()
 
 funcion_objetivo = (quicksum(quicksum(time[a, hr] * r[a] for hr in H)for a in A) * wc)
 m.setObjective(funcion_objetivo, GRB.MINIMIZE)
-# m.Params.timeLimit = 50.0
+m.Params.timeLimit = 1200
 # m.Params.MIPGapAbs = 1e-2
 m.optimize()
 m.printStats()
